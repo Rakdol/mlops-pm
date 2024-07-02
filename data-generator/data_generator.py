@@ -74,22 +74,6 @@ def generate_data(db_connect, df):
         time.sleep(1)
 
 
-def get_parent(path, levels=1):
-    common = path
-
-    # Using for loop for getting
-    # starting point required for
-    # os.path.relpath()
-    for i in range(levels + 1):
-
-        # Starting point
-        common = os.path.dirname(common)
-
-    # Parent directory upto specified
-    # level
-    return common
-
-
 if __name__ == "__main__":
 
     parser = ArgumentParser()
@@ -110,6 +94,10 @@ if __name__ == "__main__":
         port=5432,
         database="machinedb",
     )
+
+    with db_connect.cursor() as cur:
+        cur.execute("SET TIME ZONE 'Asia/Seoul';")
+        db_connect.commit()
 
     create_table(db_connect)
     df = pd.read_csv(args.csv_path)

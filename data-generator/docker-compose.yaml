@@ -14,6 +14,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: on-failure
     
   data-generator:
     build: 
@@ -24,6 +25,7 @@ services:
       postgres-server:
         condition: service_healthy
     command: ["--db-host", "postgres-server", "--csv-path", "total_data.csv"]
+    restart: on-failure
 
 networks:
   default:
