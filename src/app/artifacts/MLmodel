@@ -1,0 +1,30 @@
+artifact_path: sk-rf-v1
+flavors:
+  python_function:
+    env: conda.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.10.12
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.5.0
+mlflow_version: 1.30.0
+model_uuid: 13523e4612944f64a7249414998bcb25
+run_id: 8194c957ffd84e778fe3bb1f1daf8c2c
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  type: dataframe
+signature:
+  inputs: '[{"name": "id", "type": "long"}, {"name": "Product ID", "type": "string"},
+    {"name": "Type", "type": "string"}, {"name": "Air temperature [K]", "type": "double"},
+    {"name": "Process temperature [K]", "type": "double"}, {"name": "Rotational speed
+    [rpm]", "type": "long"}, {"name": "Torque [Nm]", "type": "double"}, {"name": "Tool
+    wear [min]", "type": "long"}, {"name": "TWF", "type": "long"}, {"name": "HDF",
+    "type": "long"}, {"name": "PWF", "type": "long"}, {"name": "OSF", "type": "long"},
+    {"name": "RNF", "type": "long"}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+utc_time_created: '2024-07-03 04:50:35.656328'

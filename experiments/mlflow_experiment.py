@@ -23,10 +23,15 @@ from src.logger import logging
 from src.exception import CustomException
 from utils import get_or_create_experiment, champion_callback
 
-os.environ["MLFLOW_S3_ENDPOINT_URL"] = "http://localhost:9000"
-os.environ["MLFLOW_TRACKING_URI"] = "http://localhost:5001"
-os.environ["AWS_ACCESS_KEY_ID"] = "minio"
-os.environ["AWS_SECRET_ACCESS_KEY"] = "miniostorage"
+from dotenv import load_dotenv
+
+
+load_dotenv(os.path.join(PACKAGE_ROOT, "src/config"))
+
+# os.environ["MLFLOW_S3_ENDPOINT_URL"] = "http://localhost:9000"
+# os.environ["MLFLOW_TRACKING_URI"] = "http://localhost:5001"
+# os.environ["AWS_ACCESS_KEY_ID"] = "minio"
+# os.environ["AWS_SECRET_ACCESS_KEY"] = "miniostorage"
 
 
 parser = ArgumentParser()

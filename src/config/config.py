@@ -3,8 +3,8 @@ import os
 
 PACKAGE_ROOT = pathlib.Path(__file__).parent.parent.parent
 
-DATAPATH = os.path.join(PACKAGE_ROOT, "datasets")
 
+DATAPATH = os.path.join(PACKAGE_ROOT, "datasets")
 TRAIN_FILE = "train.csv"
 TEST_FILE = "test.csv"
 ORIGIN_FILE = "machine failure.csv"
