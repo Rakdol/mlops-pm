@@ -9,11 +9,13 @@ PACKAGE_ROOT = Path(os.path.abspath(os.path.dirname(__file__)))
 BASE_DIR = os.path.join(PACKAGE_ROOT.parent, "config")
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
+MODEL_DIR = os.path.join(PACKAGE_ROOT.parent.parent, "artifacts/")
+
 
 def download_model(args):
     mlflow.artifacts.download_artifacts(
         artifact_uri=f"models:/{args.model_name}/{args.stage}",
-        dst_path="artifacts/",
+        dst_path=MODEL_DIR,
     )
 
 

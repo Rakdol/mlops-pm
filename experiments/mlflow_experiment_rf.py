@@ -76,6 +76,7 @@ def objective(trial, X, y, cv, scoring):
         pipe.input_pipeline,
         RandomForestClassifier(**params, random_state=42),
     )
+
     scores = cross_validate(model, X, y, cv=cv, scoring=scoring, n_jobs=-1)
     roc = scores["test_score"].mean()
     return roc
