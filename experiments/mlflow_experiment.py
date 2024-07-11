@@ -141,6 +141,7 @@ with mlflow.start_run():
 
     logging.info("Save model metrics in mlflow")
 
+    # TODO: code path: should be optimzie the included pakage
     mlflow.sklearn.log_model(
         sk_model=model,
         artifact_path=args.model_name,
