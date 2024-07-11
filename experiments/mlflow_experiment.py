@@ -26,7 +26,8 @@ from utils import get_or_create_experiment, champion_callback
 from dotenv import load_dotenv
 
 
-load_dotenv(os.path.join(PACKAGE_ROOT, "src/config"))
+load_dotenv(os.path.join(PACKAGE_ROOT, "src/config/.env"))
+
 
 # os.environ["MLFLOW_S3_ENDPOINT_URL"] = "http://localhost:9000"
 # os.environ["MLFLOW_TRACKING_URI"] = "http://localhost:5001"
@@ -144,6 +145,7 @@ with mlflow.start_run():
         sk_model=model,
         artifact_path=args.model_name,
         signature=signature,
+        code_paths=["../src"],
         input_example=input_sample,
     )
 

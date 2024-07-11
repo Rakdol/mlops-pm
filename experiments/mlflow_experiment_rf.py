@@ -34,7 +34,7 @@ load_dotenv(os.path.join(PACKAGE_ROOT, "src/config/.env"))
 
 parser = ArgumentParser()
 parser.add_argument("--exp-name", dest="exp_name", type=str)
-parser.add_argument("--run-name", dest="run_name", type=str)
+# parser.add_argument("--run-name", dest="run_name", type=str)
 parser.add_argument("--model-name", dest="model_name", type=str, default="sk_model")
 args = parser.parse_args()
 
@@ -54,10 +54,10 @@ except Exception as e:
 
 if __name__ == "__main__":
     skf = StratifiedKFold(n_splits=2, random_state=42, shuffle=True)
-    experiment_id = get_or_create_experiment(args.exp_name)
+    # experiment_id = get_or_create_experiment(args.exp_name)
 
     # Set the current active MLflow experiment
-    mlflow.set_experiment(experiment_id)
+    mlflow.set_experiment(args.exp_name)
     logging.info(f"Set Mlflow Experiment: {args.exp_name}")
 
     def objective(trial, X, y, cv, scoring):
@@ -81,7 +81,7 @@ if __name__ == "__main__":
         roc = scores["test_score"].mean()
         return roc
 
-    with mlflow.start_run(run_name=args.run_name) as run:
+    with mlflow.start_run() as run:
         study = optuna.create_study(direction="maximize")
 
         func = lambda trial: objective(
@@ -152,7 +152,7 @@ if __name__ == "__main__":
             artifact_path=args.model_name,
             signature=signature,
             input_example=input_sample,
-            code_paths=["src/"],
+            code_paths=["../src"],
             registered_model_name="sk-rf-model",
         )
 
