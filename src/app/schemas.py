@@ -3,7 +3,6 @@ from pydantic import BaseModel
 
 
 class MachineData(BaseModel):
-    timestamp: datetime
     product_id: str
     machine_type: str
     air_temperature: float

@@ -1,0 +1,8 @@
+mlflow==1.30.0
+scikit-learn
+pandas
+numpy
+optuna
+python-dotenv
+boto3==1.26.8
+psycopg2-binary

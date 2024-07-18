@@ -8,7 +8,9 @@ BASE_DIR = os.path.join(PACKAGE_ROOT, "src/config")
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 
-MODEL_DIR = "/home/moon/project/mlops-pm/artifacts"
+from src.config import config
+
+MODEL_DIR = config.MODEL_PATH
 
 
 def download_model_artifacts(model_name, stage, model_dir):
@@ -25,11 +27,11 @@ def load_model_from_directory(model_dir):
 
 
 if __name__ == "__main__":
-    model_name = "sk-learn-random-forest-clf-model"
-    stage = "Production"
+    # model_name = "sk-learn-random-forest-clf-model"
+    # stage = "Production"
 
-    # Download the model artifacts
-    download_model_artifacts(model_name, stage, MODEL_DIR)
+    # # Download the model artifacts
+    # download_model_artifacts(model_name, stage, MODEL_DIR)
 
     # Check the contents of the downloaded artifacts
     for root, dirs, files in os.walk(MODEL_DIR):

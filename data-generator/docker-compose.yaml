@@ -17,6 +17,7 @@ services:
     restart: on-failure
     
   data-generator:
+    platform: linux/amd64
     build: 
       context: .
       dockerfile: Dockerfile

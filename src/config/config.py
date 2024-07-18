@@ -8,12 +8,12 @@ DATAPATH = os.path.join(PACKAGE_ROOT, "datasets")
 TRAIN_FILE = "train.csv"
 TEST_FILE = "test.csv"
 ORIGIN_FILE = "machine failure.csv"
+LABEL_FILE = "label.json"
 
-MODEL_NAME = "model.pkl"
-SAVE_MODEL_PATH = os.path.join(PACKAGE_ROOT, "artifacts/models")
+MODEL_PATH = os.path.join(PACKAGE_ROOT, "artifacts")
+LABEL_PATH = os.path.join(PACKAGE_ROOT, "datasets/label.json")
 
 TARGET = "Machine failure"
-
 
 NUM_FEATURES = [
     "Air temperature [K]",

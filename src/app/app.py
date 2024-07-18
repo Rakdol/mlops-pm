@@ -1,87 +1,57 @@
-import os
-import sys
-from datetime import datetime
-from argparse import ArgumentParser
+import uuid
+from typing import Dict, List, Any
 
-import joblib
-import numpy as np
-import pandas as pd
-import mlflow.pyfunc
 
-from pathlib import Path
 from fastapi import FastAPI
-import cloudpickle
-from dotenv import load_dotenv
 
-from schemas import MachineData, MachineFailure
-
-PACKAGE_ROOT = Path(os.path.abspath(os.path.dirname(__file__)))
-BASE_DIR = os.path.join(PACKAGE_ROOT.parent, "config")
-load_dotenv(os.path.join(BASE_DIR, ".env"))
-
-# MODEL_DIR = os.path.join(PACKAGE_ROOT.parent.parent, "artifacts")
-# print(MODEL_DIR)
+from ..logger import logging
+from src.pipeline.prediction import classifier, Data
 
 
-MODEL_DIR = "/home/moon/project/mlops-pm/artifacts"
+app = FastAPI()
+
+@app.get("/ping")
+def ping()->Dict[str,str]:
+    return {"pong": "ok"}
 
 
-def download_model_artifacts(model_name, stage, model_dir):
-    artifact_uri = f"models:/{model_name}/{stage}"
-    mlflow.artifacts.download_artifacts(
-        artifact_uri=artifact_uri,
-        dst_path=model_dir,
-    )
+@app.get(".metadata")
+def metadata() -> Dict[str, Any]:
+    return {
+        "data_type": "float32",
+        "data_structure": "(1,4)",
+        "data_sample": "",
+        "prediction_type": "float32",
+        "prediction_structure": "(1,3)",
+        "prediction_sample": [0.97093159, 0.01558308, 0.01348537],
+    }
+    
+
+@app.get("/label")
+def label() -> Dict[int, str]:
+    return classifier.label
 
 
-def load_model_from_directory(model_dir):
-    model = mlflow.pyfunc.load_model(model_uri=model_dir, pickle_module=cloudpickle)
-    return model
+@app.get("/predict/test")
+def predict_test() -> Dict[str, List[float]]:
+    job_id = str(uuid.uuid4)
+    prediction = classifier.predict(Data().data)
+    prediction_list = list(prediction)
+    logging.info(f"test {job_id}: {prediction_list}")
+    return {"prediction": prediction_list}
 
 
-if __name__ == "__main__":
-    model_name = "sk-learn-random-forest-clf-model"
-    stage = "Production"
+@app.post("/predict")
+def predict(data):
+    job_id = str(uuid.uuid4())
+    prediction = classifier.predict(data.data)
+    prediction_list = list(prediction)
+    logging.info(f"{job_id}: {prediction_list}")
+    return {"prediction": prediction_list}
 
-    # Download the model artifacts
-    download_model_artifacts(model_name, stage, MODEL_DIR)
-
-    # Check the contents of the downloaded artifacts
-    for root, dirs, files in os.walk(MODEL_DIR):
-        print(f"Root: {root}")
-        for file in files:
-            print(f"File: {file}")
-
-    # Load the model
-    try:
-        model = load_model_from_directory(MODEL_DIR)
-        print("Model loaded successfully:", model)
-    except Exception as e:
-        print(f"Error loading model: {e}")
-
-
-# MODEL = load_model()
-# app = FastAPI()
-
-
-# @app.get("/ping")
-# async def pong():
-#     return {"message": "ping"}
-
-
-# @app.get("/")
-# async def index():
-#     return {"message": "Manchine Failure Prediction App"}
-
-
-# @app.post("/predict", response_model=MachineFailure)
-# async def predict(data: MachineData) -> MachineFailure:
-#     df = pd.DataFrame([data.model_dump()])
-#     pred = MODEL.predict(df).item()
-#     return MachineFailure(failure=pred)
-
-
-# if __name__ == "__main__":
-#     import uvicorn
-
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.post("/predict/label")
+def predict_label(data: Data) -> Dict[str, str]:
+    job_id = str(uuid.uuid4())
+    prediction = classifier.predict_label(data.data)
+    logging.info(f"test {job_id}: {prediction}")
+    return {"prediction": prediction}
