@@ -1,7 +1,0 @@
-[ 2024-07-02 16:49:43,163 ] 45 root - INFO - Get Training and Validation Datasets From: /home/moon/project/mlops-pm/datasets
-[ 2024-07-02 16:49:43,211 ] 56 root - INFO - Set Mlflow Experiment: logit-exp1
-[ 2024-07-02 16:52:54,218 ] 85 root - INFO - Complete Oputna Optimization and Best Metric: 0.9482624653293072
-[ 2024-07-02 16:52:57,199 ] 103 root - INFO - Make Pipeline and Fit the model with best parmas
-[ 2024-07-02 16:52:58,247 ] 136 root - INFO - Save model metrics in mlflow
-[ 2024-07-02 16:53:04,450 ] 1123 botocore.credentials - INFO - Found credentials in environment variables.
-[ 2024-07-02 16:53:04,970 ] 145 root - INFO - Save model artifacts in mlflow

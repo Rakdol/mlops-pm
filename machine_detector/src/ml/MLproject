@@ -1,0 +1,14 @@
+name: machine_detector
+
+entry_points:
+  main:
+    parameters:
+      preprocess_local: {type: bool, default: True}
+      preprocess_downstream: {type: string, default: /opt/data/processed/}
+      preprocess_cached_data_id: {type: string, default: ""}
+
+    command: |
+      python -m main \
+        --preprocess_local {preprocess_local} \
+        --preprocess_downstream {preprocess_downstream} \
+        --preprocess_cached_data_id {preprocess_cached_data_id}
