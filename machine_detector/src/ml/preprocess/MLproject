@@ -1,0 +1,21 @@
+name: detector_preprocess
+
+docker_env:
+  image: detection_system:0.0.1
+  volumes: ["$(pwd)/data:/opt/data", $(pwd):/mlflow/projects/code]
+
+
+entry_points:
+  preprocess:
+    parameters:
+      data: {type: string, default: machine}
+      local: {typle: bool, default: True}
+      downstream: {type: string, default: /opt/data/processed}
+      cached_data_id: {type: string, default: ""}
+
+    command: |
+      python -m src.preprocess \
+        --data {data} \
+        --local {local} \
+        --downsteram {downstream} \
+        --cached_data_id {cached_data_id}

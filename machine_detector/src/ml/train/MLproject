@@ -1,0 +1,20 @@
+name: detector_train
+
+docker_env:
+  image: detection_system:0.0.1
+  volumes: ["$(pwd)/data:/opt/data", $(pwd):/mlflow/projects/code]
+  environment: [["MLFLOW_TRACKING_URI", "http://172.17.0.1:5001"], ["MLFLOW_S3_ENDPOINT_URL", "http://172.17.0.1:9000"], ["AWS_ACCESS_KEY_ID", "minio"], ["AWS_SECRET_ACCESS_KEY", "miniostorage"],]
+
+
+entry_points:
+  preprocess:
+    parameters:
+      local: {typle: bool, default: True}
+      downstream: {type: string, default: /opt/data/processed}
+      cached_data_id: {type: string, default: ""}
+
+    command:
+      python -m src.train \
+        --local {local} \
+        --downsteram {downstream} \
+        --cached_data_id {cached_data_id}

@@ -1,2 +1,0 @@
-[ 2024-07-03 13:17:57,925 ] 46 root - INFO - Get Training and Validation Datasets From: /home/moon/project/mlops-pm/datasets
-[ 2024-07-03 13:17:57,988 ] 57 root - INFO - Set Mlflow Experiment: rf-exp
