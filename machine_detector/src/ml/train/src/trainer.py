@@ -225,7 +225,6 @@ if __name__ == "__main__":
 
     trainer.tune_hyperparameters(X_train, y_train, param_grids=param_grids, cv=3)
 
-    k = 1
     eval_report = trainer.evaluate_models(
         X_valid=X_valid,
         y_valid=y_valid,
@@ -241,3 +240,4 @@ if __name__ == "__main__":
     )
 
     evaluations = trainer.evaluate(X_valid, y_valid, model)
+    k = 1

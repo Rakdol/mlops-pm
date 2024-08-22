@@ -17,19 +17,19 @@ def main():
     parser = ArgumentParser(
         description="Main Pipeline", formatter_class=RawTextHelpFormatter
     )
-    
+
     parser.add_argument(
         "--preprocess_data",
         type=str,
         default="machine",
-        help="machine failure detection data"
+        help="machine failure detection data",
     )
 
     parser.add_argument(
-        "--preprocess_local",
-        type=bool,
-        default=True,
-        help="local raw data is used to process data",
+        "--preprocess_fetch",
+        type=str,
+        default='db',
+        help="local raw data or database are used to process data",
     )
 
     parser.add_argument(
@@ -57,7 +57,7 @@ def main():
             entry_point="preprocess",
             parameters={
                 "data": args.preprocess_data,
-                "local": args.preprocess_local,
+                "fetch": args.preprocess_fetch,
                 "downstream": args.preprocess_downstream,
                 "cached_data_id": args.preprocess_cached_data_id,
             },

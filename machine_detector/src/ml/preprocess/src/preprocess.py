@@ -1,4 +1,5 @@
 import os
+from logging import getLogger
 from argparse import ArgumentParser, RawTextHelpFormatter
 
 from distutils.dir_util import copy_tree
@@ -9,17 +10,20 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 
+from db.database import SessionLocal
 from src.configurations import (
     DataConfigurations,
     FeatureConfigurations,
 )
-
 from src.transformers import get_input_pipeline
 from src.extract_data import (
     fetch_data_from_local,
+    fetch_from_database_wtih_limit,
     save_object,
     save_to_csv,
 )
+
+logger = getLogger(__name__)
 
 
 def main():
@@ -35,10 +39,10 @@ def main():
     )
 
     parser.add_argument(
-        "--local",
-        type=bool,
-        default=True,
-        help="Collect Data from local disk",
+        "--fetch",
+        type=str,
+        default='db',
+        help="Collect Data from local disk or database",
     )
 
     parser.add_argument(
@@ -80,29 +84,38 @@ def main():
         os.makedirs(test_output_destination, exist_ok=True)
         os.makedirs(pipe_output_destination, exist_ok=True)
 
-        if args.local:
+        if args.fetch == "local":
             features, target = fetch_data_from_local(DataConfigurations.LOCAL_FILE_PATH)
+            print("Dataset loaded from the local disk")
+            logger.info("Dataset loaded from the local disk")
+        else:
+            features, target = fetch_from_database_wtih_limit(db=SessionLocal)
+            datetime = features["timestamp"]
+            features = features.drop(labels=["timestamp"], axis=1)
+            print(features.head())
+            print("Dataset loaded from the database")
+            logger.info("Dataset loaded from the database")
 
         pipe = get_input_pipeline()
-        transformed_features = pipe.fit_transform(features)
+        pipe.fit(features)
 
         X_train_full, X_test, y_train_full, y_test = train_test_split(
-            transformed_features, target, random_state=42
+            features, target, random_state=42
         )
         X_train, X_valid, y_train, y_valid = train_test_split(
             X_train_full, y_train_full, random_state=42
         )
 
-        train_data = np.c_[X_train.values, y_train.values].astype("float32")
-        valid_data = np.c_[X_valid.values, y_valid.values].astype("float32")
-        test_data = np.c_[X_test.values, y_test.values].astype("float32")
-        header_cols = pipe.get_feature_names_out() + [FeatureConfigurations.TARGET]
+        train_data = pd.concat([X_train, y_train], axis=1)
+        valid_data = pd.concat([X_valid, y_valid], axis=1)
+        test_data = pd.concat([X_test, y_test], axis=1)
+        header_cols = features.columns.to_list() + [FeatureConfigurations.TARGET]
         header = ",".join(header_cols)
 
         save_to_csv(train_data, train_output_destination, "train", header)
         save_to_csv(valid_data, valid_output_destination, "validation", header)
         save_to_csv(test_data, test_output_destination, "test", header)
-        save_object(pipe, pipe_output_destination, "pipe.pkl", header)
+        save_object(pipe, pipe_output_destination, "pipe.joblib", header)
 
         mlflow.log_artifacts(downstream_directory, artifact_path="downstream_directory")
 

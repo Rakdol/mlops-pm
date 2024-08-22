@@ -16,6 +16,10 @@ run-train:
 	export MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI} && \
 	export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} && \
 	export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} && \
+	export POSTGRES_USER=${POSTGRES_USER} && \
+	export POSTGRES_PASSWORD=${POSTGRES_PASSWORD} && \
+	export POSTGRES_DB=${POSTGRES_DB} && \
+	export POSTGRES_SERVER=${POSTGRES_SERVER} && \
 	mlflow run . --env-manager=local
 
 	

@@ -9,7 +9,8 @@ docker_env:
 entry_points:
   preprocess:
     parameters:
-      local: {typle: bool, default: True}
+    
+      local: {typle: bool, default: False}
       downstream: {type: string, default: /opt/data/processed}
       cached_data_id: {type: string, default: ""}
 

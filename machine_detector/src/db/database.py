@@ -5,9 +5,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-
+from logging import getLogger
 from db.configurations import DBConfigurations
 
+
+logger = getLogger(__name__)
+logger.info(f"DB Configuration URL: {DBConfigurations.sql_alchemy_database_url}")
 
 engine = create_engine(
     DBConfigurations.sql_alchemy_database_url,
