@@ -28,7 +28,7 @@ def main():
     parser.add_argument(
         "--preprocess_fetch",
         type=str,
-        default='db',
+        default="db",
         help="local raw data or database are used to process data",
     )
 
@@ -44,6 +44,30 @@ def main():
         type=str,
         default="",
         help="previous run id for cache",
+    )
+
+    parser.add_argument(
+        "--train_upstream",
+        type=str,
+        default="./data/processd",
+        help="upstream directory",
+    )
+
+    parser.add_argument(
+        "--train_downstream",
+        type=str,
+        default="./train/data/model/",
+        help="downstream directory",
+    )
+
+    parser.add_argument(
+        "--train_model_type",
+        type=str,
+        default="rf",
+        help="random forest",
+    )
+    parser.add_argument(
+        "--train_cv_type", type=str, default="strat_cv", help="stratified CV"
     )
 
     args = parser.parse_args()
@@ -63,6 +87,26 @@ def main():
             },
         )
         preprocess_run = mlflow.tracking.MlflowClient().get_run(preprocess_run.run_id)
+
+        s3_bucket_path = os.path.join(
+            "",
+            str(mlflow_experiment_id),
+            preprocess_run.info.run_id,
+            "artifacts/downstream_directory",
+        )
+
+        train_run = mlflow.run(
+            uri="./train",
+            entry_point="train",
+            backend="local",
+            parameters={
+                "upstream": s3_bucket_path,
+                "downstream": args.train_downstream,
+                "model_type": args.train_model_type,
+                "cv_type": args.train_cv_type,
+            },
+        )
+        train_run = mlflow.tracking.MlflowClient().get_run(train_run.run_id)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 import json
-import cloudpickle as pickle
+import joblib
 from pathlib import Path
 from typing import Union, Optional
 
@@ -78,8 +78,7 @@ def save_object(
     object_dir = Path(destination)
     save_path = str(object_dir / object_name)
 
-    with open(save_path, "wb") as f:
-        pickle.dump(object_file, f)
+    joblib.dump(object_file, save_path)
 
     if header is not None:
         headers = {i: col for i, col in enumerate(header.split(","))}

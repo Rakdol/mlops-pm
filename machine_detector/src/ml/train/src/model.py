@@ -6,24 +6,17 @@ import datetime
 
 from pathlib import Path
 from io import StringIO, BytesIO
-from typing import Optional, List, Dict, Callable, TypeAlias
-
+from typing import Optional
 from logging import getLogger
 
 import boto3
-import mlflow
 import optuna
 import pandas as pd
 import numpy as np
 from sklearn.base import BaseEstimator
-from sklearn.model_selection import (
-    StratifiedKFold,
-    cross_validate,
-    cross_val_score,
-    BaseCrossValidator,
-)
+from sklearn.model_selection import BaseCrossValidator
+
 from sklearn.pipeline import make_pipeline, Pipeline
-from sklearn.ensemble import RandomForestClassifier
 
 from sklearn.metrics import (
     accuracy_score,
@@ -38,7 +31,7 @@ from sklearn.metrics import (
 from src.transformers import get_input_pipeline
 from src.bucket import bucket_client
 from src.configurations import FeatureConfigurations
-from src.utils import get_or_create_experiment, champion_callback
+from src.utils import champion_callback
 
 logger = getLogger(__name__)
 
@@ -55,14 +48,14 @@ class MachineDataset(object):
         file_name: str,
         pipe_prefix: str,
         pipe_name: Optional[str],
-        minio_client: Optional[boto3.client],
+        bucket_client: Optional[boto3.client],
     ):
         self.upstream_directory = upstream_directory
         self.file_prefix = file_prefix
         self.file_name = file_name
         self.pipe_prefix = pipe_prefix
         self.pipe_name = pipe_name
-        self.client = minio_client
+        self.client = bucket_client
 
     def get_input_pipe(self):
         pipe_path = str(
@@ -85,7 +78,7 @@ class MachineDataset(object):
         )
         print(filepaths)
         try:
-            response = minio_client.get_object(Bucket="mlflow", Key=filepaths)
+            response = bucket_client.get_object(Bucket="mlflow", Key=filepaths)
             csv_data = response["Body"].read().decode("utf-8")
             df = pd.read_csv(StringIO(csv_data))
         except Exception as e:
@@ -100,6 +93,7 @@ class MachineDataset(object):
 
 def evaluate(
     model: BaseEstimator,
+    pipe: Pipeline,
     X_test: np.ndarray,
     y_test: np.ndarray,
     model_type: str,
@@ -114,8 +108,8 @@ def evaluate(
             mean_absolute_error,
             r2_score,
         ]
-
-    y_pred = model.predict(X_test)
+    x_trans = pipe.transform(X_test)
+    y_pred = model.predict(x_trans)
     results = {}
     if model_type == "classification":
         results[model.__class__.__name__] = {
@@ -137,54 +131,37 @@ def evaluate(
 
 def train(
     model: BaseEstimator,
+    pipe: Pipeline,
     X_train: np.ndarray,
     y_train: np.ndarray,
     X_valid: np.ndarray,
     y_valid: np.ndarray,
     model_type: str,
-    params: Optional[dict],
+    params: Optional[dict] = None,
 ):
     if params is not None:
         model.set_params(**params)
 
-    model.fit(X_train, y_train)
-    eval_result = evaluate(model, X_valid, y_valid, model_type)
+    X_trans = pipe.transform(X_train)
+    model.fit(X_trans, y_train)
+    eval_result = evaluate(model, pipe, X_valid, y_valid, model_type)
 
-    mlflow.log_metrics(
-        {key: eval_result.loc[key].to_numpy()[0] for key in eval_result.index}
-    )
-
-    return model
-
-
-ObjectiveFunc: TypeAlias = Callable[
-    [optuna.trial.Trial, np.ndarray, np.ndarray, Pipeline, BaseCrossValidator, str],
-    float,
-]
+    logger.info(f"model trained")
+    return model, eval_result
 
 
 def tune_hyperparameters(
-    objective: ObjectiveFunc,
+    objective,
     X: np.ndarray,
     y: np.ndarray,
     cv: BaseCrossValidator,
     pipe: Pipeline,
-    scoring: str,
+    n_trials: int = 5,
+    direction: str = "maximize",
+    scoring: str = "roc_auc",
 ):
-    study = optuna.create_study(direction="maximize")
-    func = lambda trial: objective(trial, X, y, cv=cv, scoring=scoring)
+    study = optuna.create_study(direction=direction)
+    func = lambda trial: objective(trial, X=X, y=y, pipe=pipe, cv=cv, scoring=scoring)
+    study.optimize(func, n_trials=n_trials, callbacks=[champion_callback])
 
-
-if __name__ == "__main__":
-
-    train_set = MachineDataset(
-        upstream_directory="0/bcba77b442a743c6a7bf9debe8b855f5/artifacts/downstream_directory",
-        file_prefix="train",
-        file_name="train_dataset.csv",
-        pipe_prefix="pipe",
-        pipe_name="pipe.joblib",
-        minio_client=minio_client,
-    )
-
-    train_x, train_y = train_set.pandas_reader_dataset(FeatureConfigurations.TARGET)
-    print(train_x.head(), train_y.head())
+    return study
