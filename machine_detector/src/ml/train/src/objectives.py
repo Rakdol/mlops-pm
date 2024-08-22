@@ -17,8 +17,8 @@ def rf_objective(
 ) -> float:
     # Define the hyperparameters to be tuned
     params = {
-        "n_estimators": trial.suggest_int("n_estimators", 100, 3000, step=50),
-        "max_depth": trial.suggest_int("max_depth", 5, 30, step=5),
+        "n_estimators": trial.suggest_int("n_estimators", 20, 100, step=20),
+        "max_depth": trial.suggest_int("max_depth", 1, 5, step=1),
         "min_samples_split": trial.suggest_int("min_samples_split", 3, 10),
         "min_samples_leaf": trial.suggest_int("min_samples_leaf", 3, 10),
         "n_jobs": -1,
@@ -51,7 +51,7 @@ def logit_objective(
 
     # model = LogisticRegression(**params, random_state=42)
     model = make_pipeline(
-        pipe.input_pipeline,
+        pipe,
         LogisticRegression(**params, random_state=42, max_iter=3000),
     )
 

@@ -12,24 +12,22 @@ from src.configurations import FeatureConfigurations
 
 
 def create_feature(df: pd.DataFrame) -> None:
-    df["air_process_diff"] = abs(
-        df["Air temperature [K]"] - df["Process temperature [K]"]
-    )
+    df["air_process_diff"] = abs(df["air_temperature"] - df["process_temperature"])
     df["speed_power"] = (
-        df["Rotational speed [rpm]"]
+        df["rotational_speed"]
         * (2 * np.pi / 60)
-        / (df["Rotational speed [rpm]"] * (2 * np.pi / 60) * df["Torque [Nm]"])
+        / (df["rotational_speed"] * (2 * np.pi / 60) * df["torque"])
     )
 
-    df["torque_power"] = df["Torque [Nm]"] / (
-        df["Rotational speed [rpm]"] * (2 * np.pi / 60) * df["Torque [Nm]"]
+    df["torque_power"] = df["torque"] / (
+        df["rotational_speed"] * (2 * np.pi / 60) * df["torque"]
     )
 
-    df["tool_process"] = df["Tool wear [min]"] * df["Process temperature [K]"]
-    df["temp_ratio"] = df["Process temperature [K]"] / df["Air temperature [K]"]
-    df["product_id_num"] = pd.to_numeric(df["Product ID"].str.slice(start=1))
+    df["tool_process"] = df["tool_wear"] * df["process_temperature"]
+    df["temp_ratio"] = df["process_temperature"] / df["air_temperature"]
+    df["product_id_num"] = pd.to_numeric(df["product_id"].str.slice(start=1))
 
-    df.drop(columns="Product ID", inplace=True)
+    df.drop(columns="product_id", inplace=True)
 
 
 class DomainTransformer(BaseEstimator, TransformerMixin):
