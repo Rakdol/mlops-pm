@@ -12,30 +12,30 @@ class DataConfigurations:
     TRAIN_FILE = "train.csv"
     TEST_FILE = "test.csv"
     ORIGIN_FILE = "machine failure.csv"
-    LOCAL_FILE_PATH = str(parent_dir / "data" / "raw" / TRAIN_FILE)
+    LOCAL_FILE_PATH = "/opt/data/raw/total_data.csv"
 
 
 class FeatureConfigurations:
-    TARGET = "Machine failure"
+    TARGET = "machine_failure"
     NUM_FEATURES = [
-        "Air temperature [K]",
-        "Process temperature [K]",
-        "Rotational speed [rpm]",
-        "Torque [Nm]",
-        "Tool wear [min]",
+        "air_temperature",
+        "process_temperature",
+        "rotational_speed",
+        "torque",
+        "tool_wear",
     ]
 
-    BIN_FEATURES = ["TWF", "HDF", "PWF", "OSF", "RNF"]  # Binary
-    CAT_FEATURES = ["Type"]
+    BIN_FEATURES = ["twf", "hdf", "pwf", "osf", "rnf"]  # Binary
+    CAT_FEATURES = ["machine_type"]
     DROP_FEATURES = ["id", "UDI"]
 
     DOMAIN_FEATURES = [
-        "Product ID",
-        "Tool wear [min]",
-        "Torque [Nm]",
-        "Rotational speed [rpm]",
-        "Air temperature [K]",
-        "Process temperature [K]",
+        "product_id",
+        "tool_wear",
+        "torque",
+        "rotational_speed",
+        "air_temperature",
+        "process_temperature",
     ]
 
     TRANS_FEATURES = [

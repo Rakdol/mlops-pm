@@ -1,32 +1,26 @@
-import os
-import sys
-from pathlib import Path
-import mlflow
-from dotenv import load_dotenv
-from argparse import ArgumentParser
+from logging import getLogger
+
+from fastapi import FastAPI
+from src.api.routers import api, health
+from src.configurations import APIConfigurations
+from src.db import initialize
+from src.db.database import engine
 
 
-# 환경 변수 설정
-PACKAGE_ROOT = Path(os.path.abspath(os.path.dirname(__file__)))
-BASE_DIR = os.path.join(PACKAGE_ROOT.parent, "config")
-load_dotenv(os.path.join(BASE_DIR, ".env"))
+logger = getLogger(__name__)
+
+initialize.initialize_table(engine=engine, checkfirst=True)
 
 
-MODEL_DIR = os.path.join(PACKAGE_ROOT.parent.parent, "artifacts/")
-model_name = "sk-logits"
-stage = "Production"
+app = FastAPI(
+    title=APIConfigurations.title,
+    description=APIConfigurations.description,
+    version=APIConfigurations.version,
+)
 
-print(MODEL_DIR)
-
-
-def download_model(model_name, stage):
-    mlflow.artifacts.download_artifacts(
-        artifact_uri=f"models:/{model_name}/{stage}",
-        dst_path=MODEL_DIR,
-    )
-
-
-# download_model(model_name, stage)
-
-model = mlflow.pyfunc.load_model(model_uri=MODEL_DIR)
-print(model)
+app.include_router(
+    health.router, prefix=f"/v{APIConfigurations.version}/health", tags=["health"]
+)
+app.include_router(
+    api.router, prefix=f"/v{APIConfigurations.version}/api", tags=["api"]
+)

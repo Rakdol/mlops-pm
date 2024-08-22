@@ -1,4 +1,4 @@
-FROM amd64/python:3.9-slim
+ FROM amd64/python:3.9-slim
 
 
 WORKDIR /usr/app

@@ -7,9 +7,9 @@ import numpy as np
 import pandas as pd
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
-from sklearn.model_selection import train_test_split
 
 from src.configurations import FeatureConfigurations
+from db import models
 
 
 def fetch_data_from_local(filepath: str):
@@ -17,6 +17,43 @@ def fetch_data_from_local(filepath: str):
 
     features = df.drop(labels=[FeatureConfigurations.TARGET], axis=1)
     target = df[FeatureConfigurations.TARGET]
+
+    return features, target
+
+
+def fetch_all_database_wtih_chunk(db: Session, chunk_size=10000):
+    with db() as session:
+
+        query = session.query(models.MachineData)
+        chunks = pd.read_sql(
+            query.statement, session.connection(), chunksize=chunk_size
+        )
+        # Process chunks
+        df_list = []
+        for chunk in chunks:
+            # Optionally process each chunk here
+            df_list.append(chunk)
+
+        # Combine chunks into a single DataFrame
+        df = pd.concat(df_list, ignore_index=True)
+        features = df.drop(labels=[FeatureConfigurations.TARGET], axis=1)
+        target = df[FeatureConfigurations.TARGET]
+
+    return features, target
+
+
+def fetch_from_database_wtih_limit(db: Session, limit=10000):
+    with db() as session:
+
+        query = (
+            session.query(models.MachineData)
+            .order_by(desc(models.MachineData.timestamp))
+            .limit(limit)
+        )
+        chunk = pd.read_sql(query.statement, session.connection())
+
+    features = chunk.drop(labels=[FeatureConfigurations.TARGET], axis=1)
+    target = chunk[FeatureConfigurations.TARGET]
 
     return features, target
 
