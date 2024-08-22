@@ -41,7 +41,7 @@ def main():
     parser.add_argument(
         "--fetch",
         type=str,
-        default='db',
+        default="db",
         help="Collect Data from local disk or database",
     )
 
