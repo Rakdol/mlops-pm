@@ -46,8 +46,15 @@ class FeatureConfigurations:
     )
 
 
-class ModelConfigurations:
-    pass
+class TrainConfigurations:
+    TRAIN_PREFIX = "train"
+    TRAIN_NAME = "train_dataset.csv"
+    VALID_PREFIX = "validation"
+    VALID_NAME = "validation_dataset.csv"
+    TEST_PREFIX = "test"
+    TEST_NAME = "test_dataset.csv"
+    PIPE_PREFIX = "pipe"
+    PIPE_NAME = "pipe.joblib"
 
 
 class ObjectStoreConfigurations:
