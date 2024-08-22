@@ -6,7 +6,8 @@ import datetime
 
 from pathlib import Path
 from io import StringIO, BytesIO
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Callable, TypeAlias
+
 from logging import getLogger
 
 import boto3
@@ -40,6 +41,7 @@ from src.configurations import FeatureConfigurations
 from src.utils import get_or_create_experiment, champion_callback
 
 logger = getLogger(__name__)
+
 
 def root_mean_squared_error(y_true, y_pred):
     return np.sqrt(mean_squared_error(y_true, y_pred))
@@ -147,14 +149,30 @@ def train(
 
     model.fit(X_train, y_train)
     eval_result = evaluate(model, X_valid, y_valid, model_type)
-    
-    mlflow.log_metrics({key: eval_result.loc[key].to_numpy()[0] for key in eval_result.index})
+
+    mlflow.log_metrics(
+        {key: eval_result.loc[key].to_numpy()[0] for key in eval_result.index}
+    )
 
     return model
 
 
-def tune_hyperparameters(model:BaseEstimator, cv:BaseCrossValidator, pipe:Pipeline, objective, n_split=5):
+ObjectiveFunc: TypeAlias = Callable[
+    [optuna.trial.Trial, np.ndarray, np.ndarray, Pipeline, BaseCrossValidator, str],
+    float,
+]
 
+
+def tune_hyperparameters(
+    objective: ObjectiveFunc,
+    X: np.ndarray,
+    y: np.ndarray,
+    cv: BaseCrossValidator,
+    pipe: Pipeline,
+    scoring: str,
+):
+    study = optuna.create_study(direction="maximize")
+    func = lambda trial: objective(trial, X, y, cv=cv, scoring=scoring)
 
 
 if __name__ == "__main__":
