@@ -1,10 +1,18 @@
 from pathlib import Path
 import os
+from logging import getLogger
 
-PAKEGE_ROOT = Path(__file__).resolve()
-print(PAKEGE_ROOT)
+from src.constants import PLATFORM_ENUM
 
-parent_dir = Path(__file__).resolve().parents[2]
+logger = getLogger(__name__)
+
+
+class PlatformConfigurations:
+    platform = os.getenv("PLATFORM", PLATFORM_ENUM.DOCKER.value)
+    if not PLATFORM_ENUM.has_value(platform):
+        raise ValueError(
+            f"PLATFORM must be one of {[v.value for v in PLATFORM_ENUM.__members__.values()]}"
+        )
 
 
 class DataConfigurations:
@@ -49,3 +57,8 @@ class FeatureConfigurations:
     FRAME_FEATURES = (
         CAT_FEATURES + NUM_FEATURES + BIN_FEATURES + TRANS_FEATURES + ["product_id_num"]
     )
+
+
+logger.info(f"{PlatformConfigurations.__name__}: {PlatformConfigurations.__dict__}")
+logger.info(f"{DataConfigurations.__name__}: {DataConfigurations.__dict__}")
+logger.info(f"{FeatureConfigurations.__name__}: {FeatureConfigurations.__dict__}")
