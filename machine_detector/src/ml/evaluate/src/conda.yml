@@ -1,0 +1,12 @@
+name: evaluate
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - mlflow
+      - grpcio
+      - Pillow
+      - scikit-learn
+      - numpy
