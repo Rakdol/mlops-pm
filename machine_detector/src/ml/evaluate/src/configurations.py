@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 from logging import getLogger
 
-from src.constants import PLATFORM_ENUM
+from constants import PLATFORM_ENUM
 
 logger = getLogger(__name__)
 
@@ -57,6 +57,8 @@ class FeatureConfigurations:
     FRAME_FEATURES = (
         CAT_FEATURES + NUM_FEATURES + BIN_FEATURES + TRANS_FEATURES + ["product_id_num"]
     )
+
+    LABELS = {0: "normal", 1: "failure"}
 
 
 logger.info(f"{PlatformConfigurations.__name__}: {PlatformConfigurations.__dict__}")

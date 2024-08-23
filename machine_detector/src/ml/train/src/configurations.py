@@ -1,5 +1,18 @@
 from pathlib import Path
 import os
+from logging import getLogger
+
+from src.constants import PLATFORM_ENUM
+
+logger = getLogger(__name__)
+
+
+class PlatformConfigurations:
+    platform = os.getenv("PLATFORM", PLATFORM_ENUM.DOCKER.value)
+    if not PLATFORM_ENUM.has_value(platform):
+        raise ValueError(
+            f"PLATFORM must be one of {[v.value for v in PLATFORM_ENUM.__members__.values()]}"
+        )
 
 
 class DataConfigurations:
@@ -62,3 +75,12 @@ class ObjectStoreConfigurations:
     mlflow_tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5001")
     aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID", "minio")
     aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY", "miniostorage")
+
+
+logger.info(f"{PlatformConfigurations.__name__}: {PlatformConfigurations.__dict__}")
+logger.info(f"{DataConfigurations.__name__}: {DataConfigurations.__dict__}")
+logger.info(f"{FeatureConfigurations.__name__}: {FeatureConfigurations.__dict__}")
+logger.info(f"{TrainConfigurations.__name__}: {TrainConfigurations.__dict__}")
+logger.info(
+    f"{ObjectStoreConfigurations.__name__}: {ObjectStoreConfigurations.__dict__}"
+)

@@ -70,6 +70,13 @@ def main():
         "--train_cv_type", type=str, default="strat_cv", help="stratified CV"
     )
 
+    parser.add_argument(
+        "--evaluate_downstream",
+        type=str,
+        default="./data/evaluate/",
+        help="evaluate downstram directory",
+    )
+
     args = parser.parse_args()
     logging.info(f"Tracking URI: {mlflow.get_tracking_uri()}")
 
@@ -107,6 +114,24 @@ def main():
             },
         )
         train_run = mlflow.tracking.MlflowClient().get_run(train_run.run_id)
+
+        evaluate_upstream = os.path.join(
+            "",
+            str(mlflow_experiment_id),
+            train_run.info.run_id,
+            "artifacts",
+        )
+        evaluate_run = mlflow.run(
+            uri="./evaluate",
+            entry_point="evaluate",
+            backend="local",
+            parameters={
+                "upstream": evaluate_upstream,
+                "downstream": args.evaluate_downstream,
+                "test_data_directory": os.path.join(s3_bucket_path, "test"),
+            },
+        )
+        evaluate_run = mlflow.tracking.MlflowClient().get_run(evaluate_run.run_id)
 
 
 if __name__ == "__main__":
