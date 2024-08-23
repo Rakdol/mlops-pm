@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 
-from src.configurations import FeatureConfigurations
+from configurations import FeatureConfigurations
 
 
 def create_feature(df: pd.DataFrame) -> None:
