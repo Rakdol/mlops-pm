@@ -30,7 +30,6 @@ from sklearn.metrics import (
 
 from src.transformers import get_input_pipeline
 from src.bucket import bucket_client
-from src.configurations import FeatureConfigurations
 from src.utils import champion_callback
 
 logger = getLogger(__name__)
@@ -94,8 +93,8 @@ class MachineDataset(object):
 def evaluate(
     model: BaseEstimator,
     pipe: Pipeline,
-    X_test: np.ndarray,
-    y_test: np.ndarray,
+    X_test: pd.DataFrame,
+    y_test: pd.Series,
     model_type: str,
     average: str = "macro",
 ):
@@ -132,10 +131,10 @@ def evaluate(
 def train(
     model: BaseEstimator,
     pipe: Pipeline,
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_valid: np.ndarray,
-    y_valid: np.ndarray,
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_valid: pd.DataFrame,
+    y_valid: pd.Series,
     model_type: str,
     params: Optional[dict] = None,
 ):
@@ -152,8 +151,8 @@ def train(
 
 def tune_hyperparameters(
     objective,
-    X: np.ndarray,
-    y: np.ndarray,
+    X: pd.DataFrame,
+    y: pd.Series,
     cv: BaseCrossValidator,
     pipe: Pipeline,
     n_trials: int = 5,
