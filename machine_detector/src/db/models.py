@@ -83,3 +83,21 @@ class MachineData(Base):
         Integer,
         nullable=True,
     )
+
+
+class MachinePredict(object):
+    __tablename__ = "machine_predict"
+
+    id = Column(Integer, primary_key=True)
+    timestamp = Column(
+        DateTime(timezone=True), server_default=current_timestamp(), nullable=False
+    )
+
+    predict_label = Column(
+        String(5),
+        nullable=True,
+    )
+    predict_value = Column(
+        String(5),
+        nullable=True,
+    )
