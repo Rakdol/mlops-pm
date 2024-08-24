@@ -1,7 +1,7 @@
 from logging import getLogger
 
 from fastapi import FastAPI
-from src.api.routers import api, health
+from src.api.router import api, health
 from src.configurations import APIConfigurations
 from src.db import initialize
 from src.db.database import engine
