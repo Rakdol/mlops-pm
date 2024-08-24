@@ -5,16 +5,15 @@ from pydantic import BaseModel
 
 
 class MachineBase(BaseModel):
-    pass
+    id: int
+    timestamp: datetime.datetime
 
 
 class MachineCreate(MachineBase):
     pass
 
 
-class MachineData(BaseModel):
-    id: int
-    timestamp: datetime.datetime
+class MachineData(MachineBase):
     product_id: str
     machine_type: str
     air_temperature: float
@@ -31,3 +30,17 @@ class MachineData(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class PredictBase(BaseModel):
+    id: int
+    timestamp: datetime.datetime
+
+
+class PredictCreate(PredictBase):
+    pass
+
+
+class PredictData(PredictBase):
+    predict_label: str
+    predict_value: str
