@@ -12,7 +12,6 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: dashboardpassword
       GF_DASHBOARDS_MIN_REFRESH_INTERVAL: 500ms
     
-
 networks:
   default:
     name: mlops-network
