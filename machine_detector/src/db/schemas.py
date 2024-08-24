@@ -34,7 +34,8 @@ class MachineData(MachineBase):
 
 class PredictBase(BaseModel):
     id: int
-    timestamp: datetime.datetime
+    source_time: datetime.datetime
+    predict_time: datetime.datetime
 
 
 class PredictCreate(PredictBase):
