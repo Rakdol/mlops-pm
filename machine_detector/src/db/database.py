@@ -6,17 +6,18 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from logging import getLogger
-from db.configurations import DBConfigurations
+
+from src.configurations import DBConfigurations
 
 
 logger = getLogger(__name__)
 logger.info(f"DB Configuration URL: {DBConfigurations.sql_alchemy_database_url}")
-
 engine = create_engine(
     DBConfigurations.sql_alchemy_database_url,
     pool_recycle=3600,
     echo=False,
 )
+
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
