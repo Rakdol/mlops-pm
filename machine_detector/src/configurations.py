@@ -19,6 +19,22 @@ class DBConfigurations:
 
 
 class FeatureConfigurations:
+
+    RAW_FEATURES = [
+        "product_id",
+        "machine_type",
+        "air_temperature",
+        "process_temperature",
+        "rotational_speed",
+        "torque",
+        "tool_wear",
+        "twf",
+        "hdf",
+        "pwf",
+        "osf",
+        "rnf",
+    ]
+
     TARGET = "machine_failure"
     NUM_FEATURES = [
         "air_temperature",
@@ -57,7 +73,10 @@ class FeatureConfigurations:
 
 
 class ModelConfigurations:
-    ONNX_FILE_NAME = "machine_rf_0.onnx"
+    PIPELINE_DIRECTORY = os.getenv("PIPELINE_DIRECTORY", "./model/")
+    PIPE_FILE_NAME = os.getenv("PIPE_FILE_NAME", "machine_input_pipeline_0.joblib")
+    MODEL_DIRECTORY = os.getenv("MODEL_DIRECTORY", "./model/")
+    ONNX_FILE_NAME = os.getenv("ONNX_FILE_NAME", "machine_rf_0.onnx")
 
 
 class ObjectStoreConfigurations:
