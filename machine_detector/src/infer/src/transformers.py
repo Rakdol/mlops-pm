@@ -8,7 +8,12 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 
-from machine_detector.src.configurations import (
+from pathlib import Path
+
+path = str(Path(__file__).resolve().parents[2])
+sys.path.append(path)
+
+from configurations import (
     FeatureConfigurations,
 )
 

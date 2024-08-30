@@ -17,49 +17,53 @@ def health() -> Dict[str, str]:
 @router.get("/metadata")
 def metadata() -> Dict[str, Any]:
     return {
-        "data_type": "float32",
-        "data_structure": "(1,4)",
+        "data_type": "pd.DataFrame",
+        "data_structure": "(1, 12)",
         "data_sample": Data().data,
-        "prediction_type": "float32",
-        "prediction_structure": "(1,3)",
-        "prediction_sample": [0.97093159, 0.01558308, 0.01348537],
+        "prediction_type": "int64",
+        "prediction_structure": "(1, 1)",
+        "prediction_sample": [1],
     }
 
 
 @router.get("/label")
 def label() -> Dict[int, str]:
-    return classifier.label
+    return classifier.labels
 
 
 @router.get("/predict/test")
 def predict_test() -> Dict[str, List[float]]:
     job_id = str(uuid.uuid4())
-    prediction = classifier.predict(data=Data().data)
+    x_transform = classifier.transform(x=Data().data)
+    prediction = classifier.predict(x_transform)
     prediction_list = list(prediction)
     logger.info(f"test {job_id}: {prediction_list}")
     return {"prediction": prediction_list}
 
 
 @router.get("/predict/test/label")
-def predict_test_label() -> Dict[str, str]:
+def predict_test_label() -> Dict[str, List[str]]:
     job_id = str(uuid.uuid4())
-    prediction = classifier.predict_label(data=Data().data)
+    x_transform = classifier.transform(x=Data().data)
+    prediction = classifier.predict_label(x_transform)
     logger.info(f"test {job_id}: {prediction}")
     return {"prediction": prediction}
 
 
 @router.post("/predict")
-def predict(data: Data) -> Dict[str, List[float]]:
+def predict(data: Data) -> Dict[str, List[int]]:
     job_id = str(uuid.uuid4())
-    prediction = classifier.predict(data.data)
+    x_transform = classifier.transform(data.data)
+    prediction = classifier.predict(x_transform)
     prediction_list = list(prediction)
     logger.info(f"{job_id}: {prediction_list}")
     return {"prediction": prediction_list}
 
 
 @router.post("/predict/label")
-def predict_label(data: Data) -> Dict[str, str]:
+def predict_label(data: Data) -> Dict[str, List[str]]:
     job_id = str(uuid.uuid4())
-    prediction = classifier.predict_label(data.data)
+    x_transform = classifier.transform(data.data)
+    prediction = classifier.predict_label(x_transform)
     logger.info(f"test {job_id}: {prediction}")
     return {"prediction": prediction}

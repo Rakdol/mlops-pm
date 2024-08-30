@@ -148,6 +148,9 @@ def start_run(
         downstream_directory,
         f"machine_{model_type}_{mlflow_experiment_id}.onnx",
     )
+    pipe_file_name = os.path.join(
+        downstream_directory, f"machine_input_pipeline_{mlflow_experiment_id}.joblib"
+    )
 
     initial_type = [
         (
@@ -162,6 +165,7 @@ def start_run(
     )
 
     joblib.dump(trained_model, model_file_name)
+    joblib.dump(input_pipe, pipe_file_name)
 
     with open(onnx_file_name, "wb") as f:
         f.write(onx.SerializeToString())
@@ -171,6 +175,7 @@ def start_run(
     )
     mlflow.log_artifact(model_file_name)
     mlflow.log_artifact(onnx_file_name)
+    mlflow.log_artifact(pipe_file_name)
     logger.info("Save model metrics in mlflow")
 
 
