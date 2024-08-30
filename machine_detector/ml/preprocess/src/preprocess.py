@@ -64,7 +64,7 @@ def main():
 
     if args.cached_data_id:
         cached_artifact_directory = os.path.join(
-            "/tmp/mlruns/0",
+            "0",
             args.cached_data_id,
             "artifacts/downstream_directory",
         )
