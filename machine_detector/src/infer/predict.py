@@ -15,7 +15,7 @@ from src.configurations import (
     FeatureConfigurations,
     ModelConfigurations,
 )
-from utils.logger import logging
+from src.utils.logger import logging
 
 
 pipe_path = str(Path(__file__).resolve().parents[0])
