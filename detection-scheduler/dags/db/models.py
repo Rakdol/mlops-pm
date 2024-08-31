@@ -8,10 +8,10 @@ from sqlalchemy import (
 )
 from sqlalchemy.sql.functions import current_timestamp
 from sqlalchemy.types import JSON
-from db.database import Base
+from db.database import BaseSource, BaseEvent
 
 
-class MachineData(Base):
+class MachineData(BaseSource):
     __tablename__ = "machine_data"
 
     id = Column(Integer, primary_key=True)
@@ -85,7 +85,7 @@ class MachineData(Base):
     )
 
 
-class MachinePredict(Base):
+class MachinePredict(BaseEvent):
     __tablename__ = "machine_predict"
 
     id = Column(Integer, primary_key=True)

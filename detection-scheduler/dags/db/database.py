@@ -9,7 +9,6 @@ from logging import getLogger
 
 from db.configurations import SourceDBConfigurations, TargetDBConfigurations
 
-
 logger = getLogger(__name__)
 logger.info(f"Source DB Configuration URL: {SourceDBConfigurations.sql_alchemy_database_url}")
 source_engine = create_engine(
@@ -28,4 +27,5 @@ event_engine = create_engine(
 Session_Source = sessionmaker(autocommit=False, autoflush=False, bind=source_engine)
 Session_Event = sessionmaker(autocommit=False, autoflush=False, bind=event_engine)
 
-Base = declarative_base()
+BaseSource = declarative_base()
+BaseEvent = declarative_base()

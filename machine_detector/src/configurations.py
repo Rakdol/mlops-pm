@@ -12,8 +12,14 @@ class DBConfigurations:
     postgres_password = os.getenv("POSTGRES_PASSWORD", 1234)
     postgres_port = int(os.getenv("POSTGRES_PORT", 5432))
     postgres_db = os.getenv("POSTGRES_DB", "machinedb")
+    # postgres_server = os.getenv(
+    #     "POSTGRES_SERVER", "localhost"
+    # )  # default docker bridge
+    # postgres_server = os.getenv(
+    #     "POSTGRES_SERVER", "172.17.0.1"
+    # )  # default docker bridge
     postgres_server = os.getenv(
-        "POSTGRES_SERVER", "172.17.0.1"
+        "POSTGRES_SERVER", "host.docker.internal" # for macOs
     )  # default docker bridge
     sql_alchemy_database_url = f"postgresql://{postgres_username}:{postgres_password}@{postgres_server}:{postgres_port}/{postgres_db}"
 
