@@ -16,12 +16,11 @@ from src.configurations import (
     ModelConfigurations,
 )
 from src.utils.logger import logging
-
-
-pipe_path = str(Path(__file__).resolve().parents[0])
-sys.path.append(pipe_path)
-
 from src.transformers import get_input_pipeline
+
+# pipe_path = str(Path(__file__).resolve().parents[0])
+# sys.path.append(pipe_path)
+# print("pipepath _!!!!", pipe_path)
 
 
 class Data(BaseModel):

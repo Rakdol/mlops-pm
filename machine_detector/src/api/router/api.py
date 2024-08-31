@@ -1,4 +1,5 @@
 import uuid
+import time
 from logging import getLogger
 from typing import Any, Dict, List
 
@@ -7,7 +8,6 @@ from src.infer.predict import Data, classifier
 
 logger = getLogger(__name__)
 router = APIRouter()
-
 
 @router.get("/health")
 def health() -> Dict[str, str]:

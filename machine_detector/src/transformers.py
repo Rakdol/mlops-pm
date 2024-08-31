@@ -10,10 +10,10 @@ from sklearn.pipeline import Pipeline
 
 from pathlib import Path
 
-path = str(Path(__file__).resolve().parents[2])
-sys.path.append(path)
+# path = str(Path(__file__).resolve().parents[2])
+# sys.path.append(path)
 
-from configurations import (
+from src.configurations import (
     FeatureConfigurations,
 )
 
