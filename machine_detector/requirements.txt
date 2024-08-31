@@ -14,3 +14,4 @@ onnx>=1.16.2
 onnxruntime>=1.18.1
 skl2onnx>=1.17.0
 locust>=2.31.4
+prometheus-fastapi-instrumentator
