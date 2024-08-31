@@ -1,4 +1,4 @@
-FROM amd64/python:3.9-slim
+FROM amd64/python:3.10-slim
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install -U pip &&\
-    pip install boto3==1.26.8 mlflow==2.9.2 psycopg2-binary
+    pip install boto3==1.35.1 mlflow==2.15.1 psycopg2-binary
 
 RUN cd /tmp && \
     wget https://dl.min.io/client/mc/release/linux-amd64/mc && \

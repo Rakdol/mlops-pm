@@ -35,6 +35,7 @@ services:
     restart: on-failure
 
   mlflow-server:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile

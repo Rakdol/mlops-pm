@@ -96,7 +96,7 @@ if __name__ == "__main__":
     )
 
     with db_connect.cursor() as cur:
-        cur.execute("SET TIME ZONE 'Asia/Seoul';")
+        # cur.execute("SET TIME ZONE 'Asia/Seoul';")
         db_connect.commit()
 
     create_table(db_connect)
