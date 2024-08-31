@@ -6,9 +6,11 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.sensors.sql_sensor import SqlSensor
 
 from sqlalchemy.orm import Session
-from db.database import Session_Event, Session_Source
+from db.database import Session_Event, Session_Source, event_engine
+from db import initialize
 from db.models import MachineData, MachinePredict
 
+initialize.initialize_event_table(engine=event_engine)
 
 def get_last_processed_time(**kwargs):
     with Session_Source() as session_source:
@@ -23,7 +25,8 @@ def get_last_processed_time(**kwargs):
 def request_for_detection(**kwargs):
     # data example : {'data': [['M23918', 'M ', 297.2, 308.6, 1576, 39.0, 100.0, 0, 0, 0, 0, 0]]}
     
-    api_url = "http://172.17.0.1:8000/v0.1/api/predict"  # Corrected URL
+    # api_url = "http://172.17.0.1:8000/v0.1/api/predict"  # Corrected URL
+    api_url = "http://host.docker.internal:8000/v0.1/api/predict"  # Corrected URL
     
     with Session_Source() as session_source:
         new_data_statement = session_source.query(MachineData).filter(MachineData.timestamp > kwargs['last_processed_time']).statement
