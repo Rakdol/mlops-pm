@@ -12,10 +12,10 @@ class SourceDBConfigurations:
 
 
 class TargetDBConfigurations:
-    postgres_username = os.getenv("POSTGRES_USER", "admin")
-    postgres_password = os.getenv("POSTGRES_PASSWORD", 1234)
+    postgres_username = os.getenv("POSTGRES_USER", "eventuser")
+    postgres_password = os.getenv("POSTGRES_PASSWORD", "eventpassword")
     postgres_port = int(os.getenv("POSTGRES_PORT", 5432))
-    postgres_db = os.getenv("POSTGRES_DB", "eventDB")
+    postgres_db = os.getenv("POSTGRES_DB", "eventdb")
     postgres_server = os.getenv(
         "POSTGRES_SERVER", "event-postgres-server"
     )  # default docker bridge
