@@ -29,7 +29,6 @@ class Data(BaseModel):
         ["L49624", "L ", 299.2, 308.6, 1267, 40.4, 76.0, 0, 0, 0, 0, 0]
     ]
 
-
 class Classifier(object):
     def __init__(
         self,

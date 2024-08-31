@@ -27,7 +27,6 @@ def select_machine_by_type(db: Session, machine_type: str) -> List[schemas.Machi
         .all()
     )
 
-
 def select_machine_from_btw_time(
     db: Session, start_time: datetime.datetime, end_time: datetime.datetime
 ) -> List[schemas.MachineData]:

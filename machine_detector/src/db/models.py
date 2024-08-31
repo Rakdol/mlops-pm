@@ -85,16 +85,19 @@ class MachineData(Base):
     )
 
 
-class MachinePredict(object):
+class MachinePredict(Base):
     __tablename__ = "machine_predict"
 
     id = Column(Integer, primary_key=True)
-    timestamp = Column(
+    source_time = Column(
+        DateTime(timezone=True), server_default=current_timestamp(), nullable=False
+    )
+    predict_time = Column(
         DateTime(timezone=True), server_default=current_timestamp(), nullable=False
     )
 
     predict_label = Column(
-        String(5),
+        String(20),
         nullable=True,
     )
     predict_value = Column(
