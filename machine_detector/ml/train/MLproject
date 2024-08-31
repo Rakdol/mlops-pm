@@ -3,7 +3,8 @@ name: detector_train
 docker_env:
   image: detection_system:0.0.1
   volumes: ["$(pwd)/../data:/opt/data", "$(pwd)/../../model:/opt/data/model", $(pwd):/mlflow/projects/code]
-  environment: [["MLFLOW_TRACKING_URI", "http://172.17.0.1:5001"], ["MLFLOW_S3_ENDPOINT_URL", "http://172.17.0.1:9000"], ["AWS_ACCESS_KEY_ID", "minio"], ["AWS_SECRET_ACCESS_KEY", "miniostorage"],]
+  # environment: [["MLFLOW_TRACKING_URI", "http://172.17.0.1:5001"], ["MLFLOW_S3_ENDPOINT_URL", "http://172.17.0.1:9000"], ["AWS_ACCESS_KEY_ID", "minio"], ["AWS_SECRET_ACCESS_KEY", "miniostorage"],]
+  environment: [["MLFLOW_TRACKING_URI", "http://host.docker.internal:5001"], ["MLFLOW_S3_ENDPOINT_URL", "http://host.docker.internal:9000"], ["AWS_ACCESS_KEY_ID", "minio"], ["AWS_SECRET_ACCESS_KEY", "miniostorage"],]
 
 
 entry_points:
