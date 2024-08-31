@@ -12,7 +12,6 @@ RUN apt-get -y update && \
 COPY ./src/ /${PROJECT_DIR}/src/
 COPY ./model/ /${PROJECT_DIR}/model/
 
-
 ENV PIPELINE_DIRECTORY=/${PROJECT_DIR}/model/
 ENV PIPE_FILE_NAME=machine_input_pipeline_0.joblib
 ENV MODEL_DIRECTORY=/${PROJECT_DIR}/model/
