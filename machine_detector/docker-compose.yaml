@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  inference-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: inference-server
+    ports:
+      - 8000:8000
+    environment:
+      - PIPELINE_DIRECTORY=/machine_model/model/
+      - PIPE_FILE_NAME=machine_input_pipeline_0.joblib
+      - MODEL_DIRECTORY=/machine_model/model/
+      - ONNX_FILE_NAME=machine_rf_0.onnx
+    command: ["./run.sh"]
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
