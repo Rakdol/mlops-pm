@@ -81,7 +81,7 @@ entry_points:
     parameters:
       preprocess_data: {type: string, default: machine}
       preprocess_fetch: {type: string, default: local}
-      preprocess_downstream: {type: string, default: /opt/data/processed/}
+      preprocess_downstream: {type: string, default: /opt/data/preprocess/}
       preprocess_cached_data_id: {type: string, default: ""}
       train_downstream: {type: string, default: /opt/data/model/}
       train_model_type: {type: string, default: rf}
@@ -104,4 +104,40 @@ entry_points:
 - local -> /ml/data/raw/total_data.csv 를 사용
 - db -> data-generator에서 수집되는 postgres-server에서 수집하여 사용
 
+#### Mlflow Result 
+![alt text](./images/image.png)
+#### Minio Storage
+![alt text](./images/image-2.png)
 
+
+### 추론 서버 빌드
+```bash
+$ cd machine_detector
+$ docker compose up -d
+```
+![alt text](./images/image-3.png)
+![alt text](./images/image-4.png)
+
+
+### Detection Scheduler
+
+- 먼저 진단 결과를 저장할 event db server 서버 실행
+```bash
+cd detection-scheduler
+docker compose -f event-docker-compose.yaml up -d
+```
+- 이후 에어플로우 셋업
+```bash
+echo -e "AIRFLOW_UID=$(id -u)" > .env
+```
+```bash
+docker compose up airflow-init
+```
+```bash
+docker compose up -d
+```
+- 매 30초마다 마지막 시점부터 추론서버에 데이터 전송 및 추론 결과를 Event-server에 저장
+
+![alt text](./images/image-5.png)
+
+![alt text](./images/image-6.png)
