@@ -1,6 +1,5 @@
 FROM python:3.10-slim
 
-
 ENV PROJECT_DIR=machine_model
 WORKDIR /${PROJECT_DIR}
 ADD ./requirements.txt /${PROJECT_DIR}/
@@ -12,8 +11,6 @@ RUN apt-get -y update && \
 COPY ./src/ /${PROJECT_DIR}/src/
 COPY ./model/ /${PROJECT_DIR}/model/
 
-ENV PIPELINE_DIRECTORY=/${PROJECT_DIR}/model/
-ENV PIPE_FILE_NAME=machine_input_pipeline_0.joblib
 ENV MODEL_DIRECTORY=/${PROJECT_DIR}/model/
 ENV ONNX_FILE_NAME=machine_rf_0.onnx
 

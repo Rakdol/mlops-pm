@@ -9,8 +9,6 @@ services:
     ports:
       - 8000:8000
     environment:
-      - PIPELINE_DIRECTORY=/machine_model/model/
-      - PIPE_FILE_NAME=machine_input_pipeline_0.joblib
       - MODEL_DIRECTORY=/machine_model/model/
       - ONNX_FILE_NAME=machine_rf_0.onnx
     command: ["./run.sh"]
