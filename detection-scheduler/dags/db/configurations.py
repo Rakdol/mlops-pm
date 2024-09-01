@@ -1,5 +1,6 @@
 import os
 
+
 class SourceDBConfigurations:
     postgres_username = os.getenv("POSTGRES_USER", "admin")
     postgres_password = os.getenv("POSTGRES_PASSWORD", 1234)
