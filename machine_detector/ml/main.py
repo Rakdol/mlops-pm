@@ -37,7 +37,7 @@ def main():
     parser.add_argument(
         "--preprocess_downstream",
         type=str,
-        default="./data/processed",
+        default="./data/preprocess",
         help="preprocess downstream directory",
     )
 
@@ -51,7 +51,7 @@ def main():
     parser.add_argument(
         "--train_upstream",
         type=str,
-        default="../data/processd",
+        default="../data/preprocess",
         help="upstream directory",
     )
 
