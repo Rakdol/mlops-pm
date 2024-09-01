@@ -118,6 +118,8 @@ entry_points:
 
 
 ### 추론 서버 빌드
+- 훈련이 완료되면 /machine_detector/model 경로에 모델 파일이 생성된다.
+- 해당 모델파일을 이미지에 넣어 서버를 배포한다.
 ```bash
 $ cd machine_detector
 $ docker compose up -d
