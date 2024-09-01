@@ -271,10 +271,8 @@ def main():
         downstream_directory, f"mlflow_experiment_id_{mlflow_experiment_id}.json"
     )
 
-    if not os.path.exists(log_file):
-        print(f"파일이 존재하지 않습니다: {log_file}")
-        with open(log_file, "w") as f:
-            json.dump(log_file, f)
+    with open(log_file, "w") as f:
+        json.dump(log_file, f)
 
     mlflow.log_artifact(log_file)
 
