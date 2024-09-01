@@ -11,7 +11,7 @@ entry_points:
     parameters:
       upstream: {type: string, default: /opt/data/model/}
       downstream: {type: string, default: /opt/data/evaluate/}
-      test_parent_directory: {type: string, default: /opt/data/processed}
+      test_parent_directory: {type: string, default: /opt/data/preprocess}
 
     command: |
       python -m src.evaluate \
