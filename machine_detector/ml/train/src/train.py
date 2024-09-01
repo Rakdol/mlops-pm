@@ -5,12 +5,13 @@ import joblib
 
 import mlflow
 import numpy as np
-import skl2onnx
-from skl2onnx.common.data_types import FloatTensorType
 from sklearn.model_selection import StratifiedKFold, KFold
-
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
+
+import skl2onnx
+from skl2onnx.common.data_types import FloatTensorType
+from skl2onnx import convert_sklearn
 
 
 from src.configurations import TrainConfigurations, FeatureConfigurations
@@ -18,6 +19,7 @@ from src.constants import MODEL_ENUM, CV_ENUM
 from src.model import MachineDataset, tune_hyperparameters, train, evaluate
 from src.objectives import rf_objective, logit_objective
 from src.transformers import get_input_pipeline
+from src.onnx_transformer import convert_dataframe_schema, preprocessor
 from src.bucket import bucket_client
 
 logging.basicConfig(level=logging.INFO)
@@ -38,11 +40,8 @@ def start_run(
         upstream_directory=upstream_directory,
         file_prefix=TrainConfigurations.TRAIN_PREFIX,
         file_name=TrainConfigurations.TRAIN_NAME,
-        pipe_prefix=TrainConfigurations.PIPE_PREFIX,
-        pipe_name=TrainConfigurations.PIPE_NAME,
         bucket_client=bucket_client,
     )
-    input_pipe = train_set.get_input_pipe()
 
     X_train, y_train = train_set.pandas_reader_dataset(
         target_col=FeatureConfigurations.TARGET
@@ -52,8 +51,6 @@ def start_run(
         upstream_directory=upstream_directory,
         file_prefix=TrainConfigurations.VALID_PREFIX,
         file_name=TrainConfigurations.VALID_NAME,
-        pipe_prefix=TrainConfigurations.PIPE_PREFIX,
-        pipe_name=TrainConfigurations.PIPE_NAME,
         bucket_client=bucket_client,
     )
 
@@ -65,8 +62,6 @@ def start_run(
         upstream_directory=upstream_directory,
         file_prefix=TrainConfigurations.TEST_PREFIX,
         file_name=TrainConfigurations.TEST_NAME,
-        pipe_prefix=TrainConfigurations.PIPE_PREFIX,
-        pipe_name=TrainConfigurations.PIPE_NAME,
         bucket_client=bucket_client,
     )
 
@@ -95,7 +90,7 @@ def start_run(
         X=X_train,
         y=y_train,
         cv=cv,
-        pipe=input_pipe,
+        pipe=preprocessor,
         n_trials=n_trials,
         direction="maximize",
         scoring="roc_auc",
@@ -108,7 +103,7 @@ def start_run(
 
     trained_model, valid_metric = train(
         model=model,
-        pipe=input_pipe,
+        pipe=preprocessor,
         X_train=X_train,
         y_train=y_train,
         X_valid=X_valid,
@@ -121,17 +116,16 @@ def start_run(
 
     test_metric = evaluate(
         trained_model,
-        input_pipe,
         X_test=X_test,
         y_test=y_test,
         model_type="classification",
     )
 
     signature = mlflow.models.signature.infer_signature(
-        input_pipe.transform(X_train),
-        trained_model.predict(input_pipe.transform(X_train)),
+        X_train,
+        trained_model.predict(X_train),
     )
-    input_sample = input_pipe.transform(X_train)[:5]
+    input_sample = X_train[:2]
 
     mlflow.sklearn.log_model(
         sk_model=trained_model,
@@ -148,34 +142,27 @@ def start_run(
         downstream_directory,
         f"machine_{model_type}_{mlflow_experiment_id}.onnx",
     )
-    pipe_file_name = os.path.join(
-        downstream_directory, f"machine_input_pipeline_{mlflow_experiment_id}.joblib"
-    )
 
-    initial_type = [
-        (
-            "float_input",
-            FloatTensorType([None, input_pipe.transform(X_train[:1]).shape[1]]),
-        )
-    ]
-    onx = skl2onnx.to_onnx(
-        trained_model,
-        initial_type,
-        target_opset=12,
+    selected_col = (
+        FeatureConfigurations.CAT_FEATURES + FeatureConfigurations.NUM_FEATURES
+    )
+    initial_inputs = convert_dataframe_schema(X_train[selected_col])
+
+    model_onnx = convert_sklearn(
+        trained_model, "onnx_model", initial_inputs, target_opset=12
     )
 
     joblib.dump(trained_model, model_file_name)
-    joblib.dump(input_pipe, pipe_file_name)
 
     with open(onnx_file_name, "wb") as f:
-        f.write(onx.SerializeToString())
+        f.write(model_onnx.SerializeToString())
 
     mlflow.log_metrics(
         {key: test_metric.loc[key].to_numpy()[0] for key in test_metric.index}
     )
     mlflow.log_artifact(model_file_name)
     mlflow.log_artifact(onnx_file_name)
-    mlflow.log_artifact(pipe_file_name)
+
     logger.info("Save model metrics in mlflow")
 
 

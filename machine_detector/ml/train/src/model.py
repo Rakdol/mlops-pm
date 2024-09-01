@@ -45,31 +45,12 @@ class MachineDataset(object):
         upstream_directory: str,
         file_prefix: str,
         file_name: str,
-        pipe_prefix: str,
-        pipe_name: Optional[str],
         bucket_client: Optional[boto3.client],
     ):
         self.upstream_directory = upstream_directory
         self.file_prefix = file_prefix
         self.file_name = file_name
-        self.pipe_prefix = pipe_prefix
-        self.pipe_name = pipe_name
         self.client = bucket_client
-
-    def get_input_pipe(self):
-        pipe_path = str(
-            Path() / self.upstream_directory / self.pipe_prefix / self.pipe_name
-        )
-        try:
-            response = self.client.get_object(Bucket="mlflow", Key=pipe_path)
-            pkl_data = response["Body"].read()
-            pipe = joblib.load(BytesIO(pkl_data))
-
-        except Exception as e:
-            logger.debug(f"Pipeline cannot be loaded Exceptions {e}")
-            raise Exception(e, sys)
-
-        return pipe
 
     def pandas_reader_dataset(self, target_col: str, seed=42):
         filepaths = str(
@@ -90,8 +71,7 @@ class MachineDataset(object):
 
 
 def evaluate(
-    model: BaseEstimator,
-    pipe: Pipeline,
+    model: Pipeline,
     X_test: pd.DataFrame,
     y_test: pd.Series,
     model_type: str,
@@ -106,8 +86,7 @@ def evaluate(
             mean_absolute_error,
             r2_score,
         ]
-    x_trans = pipe.transform(X_test)
-    y_pred = model.predict(x_trans)
+    y_pred = model.predict(X_test)
     results = {}
     if model_type == "classification":
         results[model.__class__.__name__] = {
@@ -140,9 +119,9 @@ def train(
     if params is not None:
         model.set_params(**params)
 
-    X_trans = pipe.transform(X_train)
-    model.fit(X_trans, y_train)
-    eval_result = evaluate(model, pipe, X_valid, y_valid, model_type)
+    model = Pipeline([("preprocessor", pipe), ("classifier", model)])
+    model.fit(X_train, y_train)
+    eval_result = evaluate(model, X_valid, y_valid, model_type)
 
     logger.info(f"model trained")
     return model, eval_result

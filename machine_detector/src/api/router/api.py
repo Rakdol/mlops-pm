@@ -9,6 +9,7 @@ from src.infer.predict import Data, classifier
 logger = getLogger(__name__)
 router = APIRouter()
 
+
 @router.get("/health")
 def health() -> Dict[str, str]:
     return {"health": "ok"}
@@ -34,8 +35,7 @@ def label() -> Dict[int, str]:
 @router.get("/predict/test")
 def predict_test() -> Dict[str, List[float]]:
     job_id = str(uuid.uuid4())
-    x_transform = classifier.transform(x=Data().data)
-    prediction = classifier.predict(x_transform)
+    prediction = classifier.predict(Data().data)
     prediction_list = list(prediction)
     logger.info(f"test {job_id}: {prediction_list}")
     return {"prediction": prediction_list}
@@ -44,8 +44,7 @@ def predict_test() -> Dict[str, List[float]]:
 @router.get("/predict/test/label")
 def predict_test_label() -> Dict[str, List[str]]:
     job_id = str(uuid.uuid4())
-    x_transform = classifier.transform(x=Data().data)
-    prediction = classifier.predict_label(x_transform)
+    prediction = classifier.predict(Data().data)
     logger.info(f"test {job_id}: {prediction}")
     return {"prediction": prediction}
 
@@ -53,8 +52,7 @@ def predict_test_label() -> Dict[str, List[str]]:
 @router.post("/predict")
 def predict(data: Data) -> Dict[str, List[int]]:
     job_id = str(uuid.uuid4())
-    x_transform = classifier.transform(data.data)
-    prediction = classifier.predict(x_transform)
+    prediction = classifier.predict(data.data)
     prediction_list = list(prediction)
     logger.info(f"{job_id}: {prediction_list}")
     return {"prediction": prediction_list}
@@ -63,7 +61,6 @@ def predict(data: Data) -> Dict[str, List[int]]:
 @router.post("/predict/label")
 def predict_label(data: Data) -> Dict[str, List[str]]:
     job_id = str(uuid.uuid4())
-    x_transform = classifier.transform(data.data)
-    prediction = classifier.predict_label(x_transform)
+    prediction = classifier.predict_label(data.data)
     logger.info(f"test {job_id}: {prediction}")
     return {"prediction": prediction}

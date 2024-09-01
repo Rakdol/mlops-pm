@@ -19,7 +19,7 @@ class DBConfigurations:
     #     "POSTGRES_SERVER", "172.17.0.1"
     # )  # default docker bridge
     postgres_server = os.getenv(
-        "POSTGRES_SERVER", "host.docker.internal" # for macOs
+        "POSTGRES_SERVER", "host.docker.internal"  # for macOs
     )  # default docker bridge
     sql_alchemy_database_url = f"postgresql://{postgres_username}:{postgres_password}@{postgres_server}:{postgres_port}/{postgres_db}"
 
@@ -79,8 +79,6 @@ class FeatureConfigurations:
 
 
 class ModelConfigurations:
-    PIPELINE_DIRECTORY = os.getenv("PIPELINE_DIRECTORY", "./model/")
-    PIPE_FILE_NAME = os.getenv("PIPE_FILE_NAME", "machine_input_pipeline_0.joblib")
     MODEL_DIRECTORY = os.getenv("MODEL_DIRECTORY", "./model/")
     ONNX_FILE_NAME = os.getenv("ONNX_FILE_NAME", "machine_rf_0.onnx")
 

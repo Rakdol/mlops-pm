@@ -36,29 +36,17 @@ logger = logging.getLogger(__name__)
 class RFClassifier(object):
     def __init__(
         self,
-        pipeline_directory: str,
         model_directory: str,
         onnx_file_name: Optional[str],
         providers: List[str] = ["CPUExecutionProvider"],
     ):
-        self.preprocess_pipeline = self.get_input_pipe(pipeline_directory)
         self.onnx_session = self.get_onnx_model(
             model_directory=model_directory,
             onnx_file_name=onnx_file_name,
             providers=providers,
         )
-        self.onnx_input_name = self.onnx_session.get_inputs()[0].name
-        self.onnx_label_name = self.onnx_session.get_outputs()[0].name
+
         self.labels = FeatureConfigurations.LABELS
-
-    def get_input_pipe(self, pipeline_directory: str):
-
-        pipe_path = mlflow.artifacts.download_artifacts(
-            os.path.join("s3://mlflow", pipeline_directory)
-        )
-        pipe = joblib.load(pipe_path)
-
-        return pipe
 
     def get_onnx_model(
         self, model_directory: str, onnx_file_name: str, providers: List[str]
@@ -72,41 +60,62 @@ class RFClassifier(object):
 
         return sess
 
-    def transform(self, x: pd.DataFrame):
-        x_transformed = (
-            self.preprocess_pipeline.transform(x).to_numpy().astype(np.float32)
-        )
-        return x_transformed
+    def convert_onnx_input(
+        self,
+        x: pd.DataFrame,
+        cols: list = [
+            "air_temperature",
+            "process_temperature",
+            "rotational_speed",
+            "torque",
+            "tool_wear",
+        ],
+    ):
+
+        inputs = {c: x[c].values for c in x.columns}
+
+        for c in cols:
+            if c == "rotational_speed" or c == "tool_wear":
+                inputs[c] = inputs[c].astype(np.int64)
+            else:
+                inputs[c] = inputs[c].astype(np.float32)
+        for k in inputs:
+            inputs[k] = inputs[k].reshape((inputs[k].shape[0], 1))
+
+        return inputs
 
     def predict(self, x: pd.DataFrame):
+        inputs = self.convert_onnx_input(
+            x[FeatureConfigurations.CAT_FEATURES + FeatureConfigurations.NUM_FEATURES]
+        )
 
-        pred = self.onnx_session.run([self.onnx_label_name], {self.onnx_input_name: x})
+        pred = self.onnx_session.run(None, inputs)
 
         return [p for p in pred[0].tolist()]
 
     def predict_label(self, x: pd.DataFrame):
+        inputs = self.convert_onnx_input(
+            x[FeatureConfigurations.CAT_FEATURES + FeatureConfigurations.NUM_FEATURES]
+        )
 
-        pred = self.onnx_session.run([self.onnx_label_name], {self.onnx_input_name: x})
+        pred = self.onnx_session.run(None, inputs)
         return [str(self.labels[p]) for p in pred[0].tolist()]
 
 
 def batch_evaluate(
     test_data_directory: str,
-    pipeline_directory: str,
     model_directory: str,
     model_file_name: str,
     batch_size: int = 32,
 ) -> Dict:
 
     classifier = RFClassifier(
-        pipeline_directory=pipeline_directory,
         model_directory=model_directory,
         onnx_file_name=model_file_name,
     )
 
     batch_labels = []
     batch_predicted = []
-    batch_transform_durations = []
     batch_infer_durations = []
     batch_step = 0
 
@@ -119,25 +128,19 @@ def batch_evaluate(
 
     for i in range(0, X_test.shape[0], batch_size):
         x = X_test[i : i + batch_size]
-
-        batch_transform_start = time.time()
-        x_transform = classifier.transform(x)
-        batch_transform_end = time.time()
-        pred_label = classifier.predict_label(x_transform)
+        batch_infer_start = time.time()
+        pred_label = classifier.predict_label(x)
         batch_infer_end = time.time()
-        pred_number = classifier.predict(x_transform)
+        pred_number = classifier.predict(x)
 
         batch_labels.extend([p for p in pred_label])
         batch_predicted.extend([p for p in pred_number])
-        batch_transform_durations.append(batch_transform_end - batch_transform_start)
-        batch_infer_durations.append(batch_infer_end - batch_transform_end)
+        batch_infer_durations.append(batch_infer_end - batch_infer_start)
         batch_step += 1
 
-    batch_total_time = sum(batch_transform_durations) + sum(batch_infer_durations)
-    batch_transform_total_time = sum(batch_transform_durations)
+    batch_total_time = sum(batch_infer_durations)
     batch_infer_total_time = sum(batch_infer_durations)
     average_batch_duration_second = batch_total_time / batch_step
-    average_batch_transform_second = batch_transform_total_time / batch_step
     average_batch_infer_second = batch_infer_total_time / batch_step
 
     accuracy = accuracy_score(y_test, batch_predicted)
@@ -149,10 +152,8 @@ def batch_evaluate(
         "batch_size": batch_size,
         "batch_step": batch_step,
         "batch_total_time": batch_total_time,
-        "batch_transform_total_time": batch_transform_total_time,
         "batch_infer_total_time": batch_infer_total_time,
         "average_batch_duration_second": average_batch_duration_second,
-        "average_batch_transform_duration_second": average_batch_transform_second,
         "average_batch_infer_duration_second": average_batch_infer_second,
         "accuracy_score": accuracy,
         "precision_score": precision,
@@ -169,20 +170,17 @@ def batch_evaluate(
 
 def evaluate(
     test_data_directory: str,
-    pipeline_directory: str,
     model_directory: str,
     model_file_name: str,
 ) -> Dict:
 
     classifier = RFClassifier(
-        pipeline_directory=pipeline_directory,
         model_directory=model_directory,
         onnx_file_name=model_file_name,
     )
 
     labels = []
     predicted = []
-    trans_durations = []
     infer_durations = []
 
     test_data = mlflow.artifacts.download_artifacts(
@@ -195,24 +193,19 @@ def evaluate(
     for i, row in X_test.iterrows():
         x = pd.DataFrame([row])
 
-        transform_start = time.time()
-        x_transform = classifier.transform(x)
-        transform_end = time.time()
-        pred_label = classifier.predict_label(x_transform)
+        infer_start = time.time()
+        pred_label = classifier.predict_label(x)
         infer_end = time.time()
-        pred_number = classifier.predict(x_transform)
+        pred_number = classifier.predict(x)
 
         labels.append(pred_label)
         predicted.append(pred_number)
-        trans_durations.append(transform_end - transform_start)
-        infer_durations.append(infer_end - transform_end)
+        infer_durations.append(infer_end - infer_start)
 
-    total_time = sum(trans_durations) + sum(infer_durations)
-    total_transform_time = sum(trans_durations)
+    total_time = sum(infer_durations)
     total_infer_time = sum(infer_durations)
     total_tested = len(predicted)
     average_duration_second = total_time / total_tested
-    average_transform_duration_second = total_transform_time / total_tested
     average_infer_duration_second = total_infer_time / total_tested
 
     accuracy = accuracy_score(y_test, predicted)
@@ -223,10 +216,8 @@ def evaluate(
     evaluation = {
         "total_step": total_tested,
         "total_time": total_time,
-        "total_transform_time": total_transform_time,
         "total_infer_time": total_infer_time,
         "average_duration_second": average_duration_second,
-        "average_transform_duration_second": average_transform_duration_second,
         "average_infer_duration_second": average_infer_duration_second,
         "accuracy_score": accuracy,
         "precision_score": precision,
@@ -287,14 +278,10 @@ def main():
         os.path.join(test_parent_directory, TrainConfigurations.TEST_PREFIX),
         TrainConfigurations.TEST_NAME,
     )
-    pipeline_directory = os.path.join(
-        os.path.join(test_parent_directory, TrainConfigurations.PIPE_PREFIX),
-        TrainConfigurations.PIPE_NAME,
-    )
+
     logger.info(".... start one sample evaluate ....")
     one_sample_result = evaluate(
         test_data_directory=test_data_directory,
-        pipeline_directory=pipeline_directory,
         model_directory=upstream_directory,
         model_file_name=ModelConfigurations.ONNX_FILE_NAME,
     )
@@ -331,11 +318,6 @@ def main():
     )
 
     mlflow.log_metric(
-        "average_transform_duration_second",
-        one_sample_result["evaluation"]["average_transform_duration_second"],
-    )
-
-    mlflow.log_metric(
         "average_infer_duration_second",
         one_sample_result["evaluation"]["average_infer_duration_second"],
     )
@@ -343,7 +325,6 @@ def main():
     logger.info(".... start batch sample evaluate ....")
     batch_sample_result = batch_evaluate(
         test_data_directory=test_data_directory,
-        pipeline_directory=pipeline_directory,
         model_directory=upstream_directory,
         model_file_name=ModelConfigurations.ONNX_FILE_NAME,
     )
@@ -360,10 +341,6 @@ def main():
     mlflow.log_metric(
         "batch_total_time",
         batch_sample_result["evaluation"]["batch_total_time"],
-    )
-    mlflow.log_metric(
-        "batch_transform_total_time",
-        batch_sample_result["evaluation"]["batch_transform_total_time"],
     )
     mlflow.log_metric(
         "batch_infer_total_time",
@@ -389,11 +366,6 @@ def main():
     mlflow.log_metric(
         "average_batch_duration_second",
         batch_sample_result["evaluation"]["average_batch_duration_second"],
-    )
-
-    mlflow.log_metric(
-        "average_batch_transform_duration_second",
-        batch_sample_result["evaluation"]["average_batch_transform_duration_second"],
     )
 
     mlflow.log_metric(
