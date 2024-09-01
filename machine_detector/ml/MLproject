@@ -10,6 +10,8 @@ entry_points:
       train_downstream: {type: string, default: /opt/data/model/}
       train_model_type: {type: string, default: rf}
       train_cv_type: {type: string, default: strat_cv}
+      train_n_split: {type: int, default: 5}
+      train_n_trials: {type: int, default: 2}
       evaluate_downstream: {type: string, default: /opt/data/evaluate/}
 
     command: |
@@ -21,4 +23,6 @@ entry_points:
         --train_downstream {train_downstream} \
         --train_model_type {train_model_type} \
         --train_cv_type {train_cv_type} \
+        --train_n_split {train_n_split} \
+        --train_n_trials {train_n_trials} \
         --evaluate_downstream {evaluate_downstream}

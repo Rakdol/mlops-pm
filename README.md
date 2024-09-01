@@ -86,6 +86,8 @@ entry_points:
       train_downstream: {type: string, default: /opt/data/model/}
       train_model_type: {type: string, default: rf}
       train_cv_type: {type: string, default: strat_cv}
+      train_n_split: {type: int, default: 5}
+      train_n_trials: {type: int, default: 2}
       evaluate_downstream: {type: string, default: /opt/data/evaluate/}
 
     command: |
@@ -97,6 +99,8 @@ entry_points:
         --train_downstream {train_downstream} \
         --train_model_type {train_model_type} \
         --train_cv_type {train_cv_type} \
+        --train_n_split {train_n_split} \
+        --train_n_trials {train_n_trials} \
         --evaluate_downstream {evaluate_downstream}
 ```
 - preprocess -> train -> evaluate 실행
@@ -104,8 +108,11 @@ entry_points:
 - local -> /ml/data/raw/total_data.csv 를 사용
 - db -> data-generator에서 수집되는 postgres-server에서 수집하여 사용
 
-#### Mlflow Result 
-![alt text](./images/image.png)
+#### Mlflow Result
+![alt text](./images/image.png)  
+- 모델 전처리부터 훈련, 평가까지 수행하여  inference 시간 및 평가지표 계산
+
+![alt text](./images/image-7.png)
 #### Minio Storage
 ![alt text](./images/image-2.png)
 
