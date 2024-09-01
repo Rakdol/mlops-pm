@@ -3,15 +3,15 @@ name: detector_preprocess
 docker_env:
   image: detection_system:0.0.1
   volumes: ["$(pwd)/../data:/opt/data", "$(pwd)/db/:/mlflow/projects/code/db", $(pwd):/mlflow/projects/code]
-  # environment: [["MLFLOW_TRACKING_URI", "http://172.17.0.1:5001"], ["MLFLOW_S3_ENDPOINT_URL", "http://172.17.0.1:9000"], ["AWS_ACCESS_KEY_ID", "minio"], ["AWS_SECRET_ACCESS_KEY", "miniostorage"],]
-  environment: [["MLFLOW_TRACKING_URI", "http://host.docker.internal:5001"], ["MLFLOW_S3_ENDPOINT_URL", "http://host.docker.internal:9000"], ["AWS_ACCESS_KEY_ID", "minio"], ["AWS_SECRET_ACCESS_KEY", "miniostorage"],]
+  environment: [["MLFLOW_TRACKING_URI", "http://172.17.0.1:5001"], ["MLFLOW_S3_ENDPOINT_URL", "http://172.17.0.1:9000"], ["AWS_ACCESS_KEY_ID", "minio"], ["AWS_SECRET_ACCESS_KEY", "miniostorage"],]
+  # environment: [["MLFLOW_TRACKING_URI", "http://host.docker.internal:5001"], ["MLFLOW_S3_ENDPOINT_URL", "http://host.docker.internal:9000"], ["AWS_ACCESS_KEY_ID", "minio"], ["AWS_SECRET_ACCESS_KEY", "miniostorage"],]
 
 entry_points:
   preprocess:
     parameters:
       data: {type: string, default: machine}
       fetch: {type: string, default: db}
-      downstream: {type: string, default: /opt/data/processed}
+      downstream: {type: string, default: /opt/data/preprocess}
       cached_data_id: {type: string, default: ""}
 
     command: |
