@@ -1,4 +1,6 @@
-Machine Failure Detection System
+# Machine Failure Detection System
+### 전체 구조도
+![image](https://github.com/user-attachments/assets/4e50905c-7767-474a-bc3c-9bb945c66ebf)
 
 ## 실행순서
 ---
