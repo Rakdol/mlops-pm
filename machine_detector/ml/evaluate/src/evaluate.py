@@ -252,25 +252,29 @@ def main():
     parser.add_argument(
         "--test_parent_directory",
         type=str,
-        default="/opt/data/processed/",
+        default="/opt/data/preprocess/",
         help="test data directory",
     )
 
     args = parser.parse_args()
     mlflow_experiment_id = int(os.getenv("MLFLOW_EXPERIMENT_ID", 0))
 
-    # upstream_directory = "/opt/data/model"
     upstream_directory = args.upstream
     downstream_directory = args.downstream
     # os.makedirs(upstream_directory, exist_ok=True)
     os.makedirs(downstream_directory, exist_ok=True)
 
-    # test_parent_directory = "/opt/data/processed/"
+    # test_parent_directory = "/opt/data/preprocess/"
     test_parent_directory = args.test_parent_directory
 
-    log_file = os.path.join(downstream_directory, f"{mlflow_experiment_id}.json")
-    # with open(log_file, "w") as f:
-    #     json.dump(log_file, f)
+    log_file = os.path.join(
+        downstream_directory, f"mlflow_experiment_id_{mlflow_experiment_id}.json"
+    )
+
+    if not os.path.exists(log_file):
+        print(f"파일이 존재하지 않습니다: {log_file}")
+        with open(log_file, "w") as f:
+            json.dump(log_file, f)
 
     mlflow.log_artifact(log_file)
 
