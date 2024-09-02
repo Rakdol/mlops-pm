@@ -75,7 +75,9 @@ POSTGRES_SERVER = "localhost"
 
 ```bash
 make run-train
-
+```
+- main MLproject 파일
+```bash
 # Mlproject
 name: machine_detector
 
@@ -110,6 +112,12 @@ entry_points:
 - preprocess 단계, preprocess_fetch : local 또는 db 세팅을 통해 데이터 수집
 - local -> /ml/data/raw/total_data.csv 를 사용
 - db -> data-generator에서 수집되는 postgres-server에서 수집하여 사용
+
+- MacOs에서는 docker env 변수를 변경해주어야 제대로 동작한다.
+```bash
+  -> 기본 environment: [["MLFLOW_TRACKING_URI", "http://172.17.0.1:5001"], ["MLFLOW_S3_ENDPOINT_URL", "http://172.17.0.1:9000"], ["AWS_ACCESS_KEY_ID", "minio"], ["AWS_SECRET_ACCESS_KEY", "miniostorage"],]
+  -> MacOS environment: [["MLFLOW_TRACKING_URI", "http://host.docker.internal:5001"], ["MLFLOW_S3_ENDPOINT_URL", "http://host.docker.internal:9000"], ["AWS_ACCESS_KEY_ID", "minio"], ["AWS_SECRET_ACCESS_KEY", "miniostorage"],]
+```
 
 #### Mlflow Result
 ![alt text](./images/image.png)  
