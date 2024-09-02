@@ -138,6 +138,13 @@ $ docker compose up -d
 ![alt text](./images/image-3.png)
 ![alt text](./images/image-4.png)
 
+- src/configurations.py에서도 DB의 ENV를 지정해주지 않는다면 default로 설정이 들어가기 떄문에 OS에 따라 변경이 필요하다.
+```python
+postgres_server = os.getenv(
+        "POSTGRES_SERVER", "host.docker.internal"  # for macOs
+    )  # default docker bridge
+```
+
 
 ### Detection Scheduler
 
