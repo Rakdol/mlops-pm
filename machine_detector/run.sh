@@ -17,4 +17,4 @@ gunicorn ${APP_NAME} \
     -k ${UVICORN_WORKER} \
     --max-requests ${LIMIT_MAX_REQUESTS} \
     --max-requests-jitter ${MAX_REQUESTS_JITTER} \
-    --graceful-timeout ${GRACEFUL_TIMEOUT} \
+    --graceful-timeout ${GRACEFUL_TIMEOUT}
