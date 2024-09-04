@@ -16,7 +16,7 @@ global:
 scrape_configs:
   - job_name: 'fastapi'
     static_configs:
-      - targets: ["172.17.0.1:8000"] 
+      - targets: ["172.17.0.1:8000"] # For macOS host.docker.internal:8000
 ```
 ### metric 수집 
 ![alt text](./images/image-3.png)
