@@ -18,4 +18,3 @@ gunicorn ${APP_NAME} \
     --max-requests ${LIMIT_MAX_REQUESTS} \
     --max-requests-jitter ${MAX_REQUESTS_JITTER} \
     --graceful-timeout ${GRACEFUL_TIMEOUT} \
-    --reload
